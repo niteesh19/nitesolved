@@ -1,0 +1,28 @@
+plugins {
+    id 'java'
+    id 'com.github.sherter.google-java-format' version '0.8'
+}
+apply plugin: 'java'
+compileJava {options.encoding = "UTF-8"}
+
+test {
+    useJUnitPlatform()
+}
+
+dependencies {
+    implementation 'com.google.googlejavaformat:google-java-format:1.7'
+    implementation 'org.jetbrains:annotations:20.1.0'
+    compileOnly 'org.projectlombok:lombok:1.18.20'
+    annotationProcessor 'org.projectlombok:lombok:1.18.20'
+    implementation 'com.google.code.gson:gson:2.10'
+
+    testCompileOnly 'org.projectlombok:lombok:1.18.20'
+    testAnnotationProcessor 'org.projectlombok:lombok:1.18.20'
+
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.3.1'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.3.1'
+}
+
+repositories {
+    mavenCentral()  // or mavenCentral()
+}
