@@ -5,8 +5,8 @@ import java.util.Map;
 import java.util.Stack;
 
 /**
- * Created by gouthamvidyapradhan on 25/02/2017. Given a string containing just the characters '(',
- * ')', '{', '}', '[' and ']', determine if the input string is valid.
+ * Created by gouthamvidyapradhan on 25/02/2017. Given a string containing just the characters
+ * '(', ')', '{', '}', '[' and ']', determine if the input string is valid.
  *
  * <p>The brackets must close in the correct order, "()" and "()[]{}" are all valid but "(]" and
  * "([)]" are not.

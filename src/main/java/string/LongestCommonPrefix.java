@@ -3,8 +3,7 @@ package string;
 import java.util.Arrays;
 
 /**
- * Created by gouthamvidyapradhan on 12/04/2018. Write a function to find the longest common prefix
- * string amongst an array of strings.
+ * Write a function to find the longest common prefix string amongst an array of strings.
  *
  * <p>Solution: O(N x M) where N is the length of the given array and M is the max_length of a
  * string.
@@ -14,11 +13,7 @@ import java.util.Arrays;
  * count
  */
 public class LongestCommonPrefix {
-  /**
-   * Main method
-   *
-   * @param args
-   */
+
   public static void main(String[] args) throws Exception {
     String[] A = {"geeksforgeeks", "geeks", "geek", "geezer"};
     System.out.println(new LongestCommonPrefix().longestCommonPrefixOptimised(A));
@@ -39,6 +34,9 @@ public class LongestCommonPrefix {
     return result;
   }
 
+  //time complexity: O(n*logn)
+  //Please note that comparison of two strings would take at most O(MAX) time, and for sorting n strings,
+  // we would need O(MAX * n * log n ) time.
   public String longestCommonPrefixOptimised(String[] a) {
     int size = a.length;
 
@@ -49,16 +47,18 @@ public class LongestCommonPrefix {
 
     /* sort the array of strings */
     Arrays.sort(a);
+    //a: ["geek", "geeks", "geeksforgeeks", "geezer"]
 
     /* find the minimum length from first and last string */
     int end = Math.min(a[0].length(), a[size - 1].length());
+    //end = 4 ("geek" length)
 
     /* find the common prefix between the first and last string */
     //optimise it with i < end ; that is the shortest word count
     int i = 0;
     while (i < end && a[0].charAt(i) == a[size - 1].charAt(i))
       i++;
-
+    //i=3
     String pre = a[0].substring(0, i);
     return pre;
   }

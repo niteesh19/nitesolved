@@ -4,8 +4,14 @@ package common_medium;
 // searching algorithm
 
 class KMPMatching {
-  void KMPSearch(String pat, String txt)
-  {
+  // Driver program to test above function
+  public static void main(String args[]) {
+    String txt = "ABABDABACDABABCABAB";
+    String pat = "ABABCABAB";
+    new KMPMatching().KMPSearch(pat, txt);
+  }
+
+  void KMPSearch(String pat, String txt) {
     int M = pat.length();
     int N = txt.length();
 
@@ -25,8 +31,7 @@ class KMPMatching {
         i++;
       }
       if (j == M) {
-        System.out.println("Found pattern "
-            + "at index " + (i - j));
+        System.out.println("Found pattern at index " + (i - j));
         j = lps[j - 1];
       }
 
@@ -34,16 +39,13 @@ class KMPMatching {
       else if (i < N && pat.charAt(j) != txt.charAt(i)) {
         // Do not match lps[0..lps[j-1]] characters,
         // they will match anyway
-        if (j != 0)
-          j = lps[j - 1];
-        else
-          i = i + 1;
+        if (j != 0) j = lps[j - 1];
+        else i = i + 1;
       }
     }
   }
 
-  void computeLPSArray(String pat, int M, int lps[])
-  {
+  void computeLPSArray(String pat, int M, int lps[]) {
     // length of the previous longest prefix suffix
     int len = 0;
     int i = 1;
@@ -55,8 +57,7 @@ class KMPMatching {
         len++;
         lps[i] = len;
         i++;
-      }
-      else // (pat[i] != pat[len])
+      } else // (pat[i] != pat[len])
       {
         // This is tricky. Consider the example.
         // AAACAAAA and i = 7. The idea is similar
@@ -66,8 +67,7 @@ class KMPMatching {
 
           // Also, note that we do not increment
           // i here
-        }
-        else // if (len == 0)
+        } else // if (len == 0)
         {
           lps[i] = len;
           i++;
@@ -75,13 +75,4 @@ class KMPMatching {
       }
     }
   }
-
-  // Driver program to test above function
-  public static void main(String args[])
-  {
-    String txt = "ABABDABACDABABCABAB";
-    String pat = "ABABCABAB";
-    new KMPMatching().KMPSearch(pat, txt);
-  }
 }
-

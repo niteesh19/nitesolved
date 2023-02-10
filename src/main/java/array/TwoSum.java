@@ -3,7 +3,8 @@ package array;
 import java.util.*;
 
 /**
- * Created by gouthamvidyapradhan on 11/07/2017. Given an array of integers, return indices of the
+ *
+ * Two Sum. Given an array of integers, return indices of the
  * two numbers such that they add up to a specific target.
  *
  * <p>You may assume that each input would have exactly one solution, and you may not use the same
@@ -22,31 +23,29 @@ import java.util.*;
  */
 public class TwoSum {
 
-  class NumIndex {
-    int i, e;
-
-    NumIndex(int i, int e) {
-      this.i = i;
-      this.e = e;
-    }
-  }
-
+  /* Solution: time complexity: O(n^2)
+  Naive approach: Use two for loops
+  The naive approach is to just use two nested for loops and check if the sum of any two elements in the array is equal to the given target.
+   */
   public static void main(String[] args) {
     int[] nums = {3, 2, 4};
     int[] ans = new TwoSum().twoSum(nums, 6);
     for (int i : ans) System.out.println(i);
+    System.out.println(Arrays.toString(new TwoSum().twoSum(new int[]{2, 7, 11, 15}, 9)));
   }
 
-  // Time complexity: O(n)
+  // Optimized: Map approach : Time complexity: O(n)
   public int[] twoSum(int[] nums, int target) {
     Map<Integer, Integer> numMap = new HashMap<>();
     for (int i = 0; i < nums.length; i++) {
       int complement = target - nums[i];
       if (numMap.containsKey(complement)) {
+        System.out.println("nums: "+nums[i] + ", "+complement);
         return new int[] { numMap.get(complement), i };
       } else {
         numMap.put(nums[i], i);
       }
+      //numMap : {3: 0, 4: 1, 2: 2} complement numbers map
     }
     return new int[] {};
   }

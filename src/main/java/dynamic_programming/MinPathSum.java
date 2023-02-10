@@ -6,6 +6,9 @@ package dynamic_programming;
 import java.util.Arrays;
 /*
   Minimum Path Sum
+  Given a m x n grid filled with non-negative numbers, find a path from top left to bottom right,
+  which minimizes the sum of all numbers along its path.
+  Note: You can only move either down or right at any point in time.
  */
 
 public class MinPathSum {
@@ -44,10 +47,12 @@ public class MinPathSum {
     for (int j = 1; j < m; j++) {
       grid[0][j] = grid[0][j - 1] + grid[0][j];
     }
+    //Now grid[0] first row: [1, 4, 5]
     //initialize 1st column since only down movement happens
     for (int i = 1; i < n; i++) {
       grid[i][0] = grid[i - 1][0] + grid[i][0];
     }
+    //Now grid: [1, 3, 7] first column
     for (int i = 1; i < n; i++) {
       for (int j = 1; j < m; j++) {
         //find minimum of top and left block cost and add it to the node itself and replace
