@@ -1,11 +1,12 @@
 package design;
 
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
 
 /**
- * Created by gouthamvidyapradhan on 20/03/2017. Design and implement a data structure for Least
+ * Design and implement a data structure for Least
  * Frequently Used (LFU) cache. It should support the following operations: get and put.
  *
  * <p>get(key) - Get the value (will always be positive) of the key if the key exists in the cache,
@@ -33,196 +34,93 @@ import java.util.Map;
        cache.get(3);       // returns 3
        cache.get(4);       // returns 4
 */
+
+  // IMPORTANT: This solution doesn't comply with LRU eviction which is required in the problem statement.
+  // In this eviction is FIFO based.
 public class LFUCache {
-  private class Node {
-    int frequency;
-    Node prev;
-    Node next;
-    LinkedHashSet<Integer> hashSet;
+  private static int initialCapacity = 10;
+  private static LinkedHashMap<Integer, CacheEntry> cacheMap =
+      new LinkedHashMap<Integer, CacheEntry>();
 
-    Node(int frequency, LinkedHashSet<Integer> hashSet) {
+  public LFUCache(int initialCapacity) {
+    this.initialCapacity = initialCapacity;
+  }
+  /* LinkedHashMap is used because it has features of both HashMap and LinkedList.
+   * Thus, we can get an entry in O(1) and also, we can iterate over it easily.
+   * */
+
+  public static boolean isFull() {
+    if (cacheMap.size() == initialCapacity) return true;
+
+    return false;
+  }
+
+  public void addCacheEntry(int key, String data) {
+    if (!isFull()) {
+      CacheEntry temp = new CacheEntry();
+      temp.setData(data);
+      temp.setFrequency(0);
+
+      cacheMap.put(key, temp);
+    } else {
+      int entryKeyToBeRemoved = getLFUKey();
+      cacheMap.remove(entryKeyToBeRemoved);
+
+      CacheEntry temp = new CacheEntry();
+      temp.setData(data);
+      temp.setFrequency(0);
+
+      cacheMap.put(key, temp);
+    }
+  }
+
+  //This will run in O(n) and is less optimised. We can use min Heap for O(logn) optimisation
+  public int getLFUKey() {
+    int key = 0;
+    int minFreq = Integer.MAX_VALUE;
+
+    for (Map.Entry<Integer, CacheEntry> entry : cacheMap.entrySet()) {
+      if (minFreq > entry.getValue().frequency) {
+        key = entry.getKey();
+        minFreq = entry.getValue().frequency;
+      }
+    }
+
+    return key;
+  }
+
+  public String getCacheEntry(int key) {
+    if (cacheMap.containsKey(key)) // cache hit
+    {
+      CacheEntry temp = cacheMap.get(key);
+      temp.frequency++;
+      cacheMap.put(key, temp);
+      return temp.data;
+    }
+    return null; // cache miss
+  }
+
+  class CacheEntry {
+    private String data;
+    private int frequency;
+
+    // default constructor
+    private CacheEntry() {}
+
+    public String getData() {
+      return data;
+    }
+
+    public void setData(String data) {
+      this.data = data;
+    }
+
+    public int getFrequency() {
+      return frequency;
+    }
+
+    public void setFrequency(int frequency) {
       this.frequency = frequency;
-      this.hashSet = hashSet;
-      prev = null;
-      next = null;
     }
-  }
-
-  private int capacity;
-  private int currentSize;
-  private Map<Integer, Integer> cache;
-  private Map<Integer, Node> fMap; // frequency
-  private Node head;
-
-  /**
-   * Main method
-   *
-   * @param args
-   */
-  public static void main(String[] args) {
-    LFUCache cache1 = new LFUCache(2);
-    cache1.put(1, 1);
-    cache1.put(2, 2);
-    System.out.println(cache1.get(1));
-    cache1.put(3, 3);
-    System.out.println(cache1.get(2));
-    // System.out.println(cache1.get(3));
-    cache1.put(4, 4);
-    System.out.println(cache1.get(1));
-    System.out.println(cache1.get(3));
-    System.out.println(cache1.get(4));
-    System.out.println(cache1.get(1));
-    System.out.println(cache1.get(4));
-    System.out.println(cache1.get(2));
-    cache1.put(4, 4);
-    cache1.put(5, 4);
-    cache1.put(1, 9);
-    cache1.put(7, 1);
-    cache1.put(4, 2);
-    System.out.println(cache1.get(1));
-    System.out.println(cache1.get(4));
-    System.out.println(cache1.get(7));
-    // System.out.println(cache1.get(3));
-    // System.out.println(cache1.get(4));
-  }
-
-  public LFUCache(int capacity) {
-    currentSize = 0;
-    this.capacity = capacity;
-    cache = new HashMap<>();
-    fMap = new HashMap<>();
-  }
-
-  /**
-   * Remove node and delink
-   *
-   * @param node Node
-   */
-  private void popNode(Node node) {
-    if (node.prev != null && node.next != null) {
-      node.prev.next = node.next;
-      node.next.prev = node.prev;
-    } else if (node.prev == null) {
-      node.next.prev = null;
-      node.next = null;
-    } else {
-      node.prev.next = null;
-      node.prev = null;
-    }
-  }
-
-  /**
-   * Get value
-   *
-   * @param key key
-   * @return value
-   */
-  public int get(int key) {
-    if (!cache.containsKey(key)) return -1;
-    fMap.put(key, update(key));
-    return cache.get(key);
-  }
-
-  /**
-   * Update fMap
-   *
-   * @param key key
-   */
-  private Node update(int key) {
-    Node node = fMap.get(key);
-    node.hashSet.remove(key);
-    Node newNode;
-    if (node.next == null) {
-      newNode = makeNewNode(key, node.frequency + 1);
-      node.next = newNode;
-      newNode.prev = node;
-    } else if (node.next.frequency == node.frequency + 1) {
-      node.next.hashSet.add(key);
-      newNode = node.next;
-    } else {
-      newNode = makeNewNode(key, node.frequency + 1);
-      node.next.prev = newNode;
-      newNode.next = node.next;
-      newNode.prev = node;
-      node.next = newNode;
-    }
-    if (node.equals(head)) incrementHead();
-    else if (node.hashSet.isEmpty()) popNode(node);
-    return newNode;
-  }
-
-  /**
-   * Make new node
-   *
-   * @param key key
-   * @param frequency frequency
-   * @return Node
-   */
-  private Node makeNewNode(int key, int frequency) {
-    LinkedHashSet<Integer> linkedHashSet = new LinkedHashSet<>();
-    linkedHashSet.add(key);
-    return new Node(frequency, linkedHashSet);
-  }
-
-  /**
-   * Add new head
-   *
-   * @param key key
-   * @param frequency frequency
-   */
-  private Node addHead(int key, int frequency) {
-    if (head == null) head = makeNewNode(key, frequency);
-    else if (head.frequency > frequency) {
-      Node node = makeNewNode(key, frequency);
-      node.next = head;
-      head.prev = node;
-      head = node;
-    } else head.hashSet.add(key);
-    return head;
-  }
-
-  /** Increment head */
-  private void incrementHead() {
-    if (head.hashSet.isEmpty()) {
-      head = head.next;
-      if (head != null) {
-        head.prev.next = null;
-        head.prev = null;
-      }
-    }
-  }
-
-  /**
-   * Put key value pair
-   *
-   * @param key key
-   * @param value value
-   */
-  public void put(int key, int value) {
-    if (capacity != 0) {
-      if (cache.containsKey(key)) {
-        fMap.put(key, update(key)); // update existing
-        cache.put(key, value);
-      } else {
-        if (currentSize == capacity) {
-          evict();
-          cache.put(key, value);
-          fMap.put(key, addHead(key, 1));
-        } else {
-          fMap.put(key, addHead(key, 1)); // add new head
-          cache.put(key, value);
-          currentSize++;
-        }
-      }
-    }
-  }
-
-  /** Evict the node with least frequency */
-  private void evict() {
-    int key = head.hashSet.iterator().next();
-    head.hashSet.remove(key);
-    cache.remove(key);
-    fMap.remove(key);
-    incrementHead();
   }
 }
